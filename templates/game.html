@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+    <title>{{ game.name }}</title>
+    <style>
+        table, th, td {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            padding: 6px;
+        }
+        th {
+            background-color: #eee;
+        }
+        .highlight {
+            background-color: lightgreen;
+        }
+    </style>
+</head>
+<body>
+<h1>{{ game.name }} ({{ game.mode }})</h1>
+<a href="/">← Back</a>
+
+<h2>Matches</h2>
+<ul>
+{% for match in game.matches %}
+    <li>
+        <strong>Match {{ loop.index }}</strong>
+        <ul>
+            <li>
+                <form action="/add_player/{{ match.id }}" method="post" style="display:inline;">
+                    <input name="name" placeholder="Player name" required>
+                    <button type="submit">Add Player</button>
+                </form>
+            </li>
+            <li>
+                <form action="/add_round/{{ match.id }}" method="post">
+                    {% for player in match.players %}
+                        <input name="score_{{ player.id }}" placeholder="{{ player.name }}'s score" required>
+                    {% endfor %}
+                    <button type="submit">Add Round</button>
+                </form>
+            </li>
+        </ul>
+        {% if match.rounds %}
+            <table>
+                <tr>
+                    <th>Round</th>
+                    {% for player in match.players %}
+                        <th>{{ player.name }}</th>
+                    {% endfor %}
+                </tr>
+                {% for round in match.rounds %}
+                    <tr>
+                        <td>{{ round.number }}</td>
+                        {% for player in match.players %}
+                            <td>
+                                {{ round.results | selectattr("player_id", "equalto", player.id) | map(attribute="score") | first or "" }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <th>Total</th>
+                    {% set totals = calculate_totals(match) %}
+                    {% if totals %}
+                        {% if game.mode == 'sum_high' %}
+                            {% set best = totals.values() | max %}
+                        {% elif game.mode == 'sum_low' or game.mode == 'placement' %}
+                            {% set best = totals.values() | min %}
+                        {% else %}
+                            {% set best = None %}
+                        {% endif %}
+                    {% else %}
+                        {% set best = None %}
+                    {% endif %}
+                    {% for player in match.players %}
+                        {% set total = totals.get(player.id, 0) %}
+                        <td class="{{ 'highlight' if total == best else '' }}">
+                            {{ "%.2f"|format(total) if game.mode == 'placement' else total }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            </table>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
+
+<form action="/add_match/{{ game.id }}" method="post">
+    <button type="submit">Add Match</button>
+</form>
+
+</body>
+</html>

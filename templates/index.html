@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head><title>Games</title></head>
+<body>
+<h1>Games</h1>
+<ul>
+{% for game in games %}
+    <li><a href="/game/{{ game.id }}">{{ game.name }}</a></li>
+{% endfor %}
+</ul>
+<form action="/add_game" method="post">
+    <input name="name" placeholder="Game name" required>
+    <select name="mode">
+        <option value="sum_high">Sum (highest wins)</option>
+        <option value="sum_low">Sum (lowest wins)</option>
+        <option value="placement">Placement</option>
+    </select>
+    <button type="submit">Add Game</button>
+</form>
+</body>
+</html>

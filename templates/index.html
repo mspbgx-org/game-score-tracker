@@ -5,7 +5,7 @@
 <h1>Games</h1>
 <ul>
 {% for game in games %}
-    <li><a href="/game/{{ game.id }}">{{ game.name }}</a></li>
+    <li><a href="/game/{{ game.id }}">{{ game.name }}</a> (Mode: {{game.mode}})</li>
 {% endfor %}
 </ul>
 <form action="/add_game" method="post">

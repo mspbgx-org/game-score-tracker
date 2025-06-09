@@ -25,6 +25,7 @@
 {% for match in game.matches %}
     <li>
         <strong>Match {{ loop.index }}</strong>
+        <small>({{ match.created_at.strftime('%Y-%m-%d %H:%M') }})</small>
         <ul>
             <li>
                 <form action="/add_player/{{ match.id }}" method="post" style="display:inline;">
